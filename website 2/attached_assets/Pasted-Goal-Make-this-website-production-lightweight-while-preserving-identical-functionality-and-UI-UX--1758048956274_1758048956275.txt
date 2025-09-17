@@ -1,0 +1,113 @@
+Goal: Make this website production-lightweight while preserving identical functionality and UI/UX.
+
+Hard constraints
+
+Do not change UI, copy, routes, or behavior.
+
+All pages must render and work exactly as before.
+
+No new runtime services. Keep it static-deployable (Vercel/Netlify/Cloudflare Pages).
+
+TypeScript must still type-check. Build must pass.
+
+Targets
+
+Total JS sent on first paint: ≤ 150 KB gzipped.
+
+Hero image(s): ≤ 200 KB each, responsive.
+
+Fonts: system stack or single WOFF2 subset only.
+
+dist/ size reduced by ≥ 40% vs. baseline.
+
+Work plan
+
+Set a baseline
+
+Run: npm ci && npm run build
+
+Report: total dist/ size, top 10 largest JS chunks, largest images, total fonts, and any third-party scripts.
+
+Remove dead code & assets
+
+Delete unused components, hooks, utils, styles, images, and SVGs.
+
+Confirm with a usage search and tree-shake results.
+
+Ensure no import errors after deletion.
+
+Trim dependencies
+
+List all deps. Remove anything unused or easily replaceable with native/CSS:
+
+Heavy UI libs (only keep parts actually used, or replace with Tailwind).
+
+Large icon packs → import only individual icons used.
+
+Framer Motion → replace simple fades/translates with CSS transitions where feasible.
+
+Update code to match removals. Run npm prune.
+
+Optimize images & icons
+
+Convert PNG/JPG to WebP/AVIF; keep a small PNG fallback only if needed.
+
+Add <img srcset sizes> for responsive loading.
+
+Inline tiny SVGs; otherwise use external files with width/height set to avoid CLS.
+
+Fonts
+
+Prefer system font stack. If brand font required:
+
+Use one WOFF2 subset (latin), preload once, font-display: swap.
+
+Remove TTF/OTF/WOFF.
+
+CSS & Tailwind
+
+Ensure Tailwind Purge/Content is correctly configured to strip unused classes.
+
+Remove global CSS that duplicates Tailwind utilities.
+
+Code splitting & lazy loading
+
+Split rarely-visited pages and heavy components via dynamic import().
+
+Lazy-load non-critical widgets (e.g., carousels, maps) behind interaction.
+
+Build tuning
+
+Ensure production Vite build with minification, module preloading, and vendor chunking.
+
+Verify no source maps are shipped to prod (keep as artifacts only).
+
+SEO/perf essentials
+
+Add width/height on images to prevent layout shift.
+
+Preconnect/preload only when it actually improves LCP.
+
+Remove unused meta/script tags.
+
+Acceptance criteria
+
+npm run build succeeds.
+
+Visual diff looks the same (spot-check key pages).
+
+Lighthouse (mobile) performance ≥ 90, SEO/Best Practices ≥ 90.
+
+Bundle report shows targets met.
+
+Provide a CHANGELOG listing exactly what was removed/replaced.
+
+Deliverables
+
+PR on branch perf/lean-build with:
+
+Commit messages per step.
+
+report.md containing: before/after metrics, bundle breakdown, image list (old vs new sizes), and decisions taken.
+
+deployment.md with static hosting instructions.
